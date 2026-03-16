@@ -1,4 +1,4 @@
-// 1. FUNGSI TOGGLE (Pindah tampilan Login/Register)
+// 1. FUNGSI TOGGLE (Pindah pindah tampilan Login/Register)
 function toggleAuth() {
     document.getElementById('loginForm').classList.toggle('hidden');
     document.getElementById('registerForm').classList.toggle('hidden');
