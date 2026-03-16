@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Digital Manager Pro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f4f7f6; height: 100vh; display: flex; align-items: center; }
+        .auth-card { width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin: auto; }
+        .hidden { display: none; }
+        .btn-primary { background: #0984e3; border: none; }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <h3 class="text-center fw-bold mb-4" id="authTitle">Login</h3>
+    
+    <form id="loginForm">
+        <div class="mb-3">
+            <label>Email</label>
+            <input type="email" id="loginEmail" class="form-control" placeholder="admin@pro.com" required>
+        </div>
+        <div class="mb-3">
+            <label>Password</label>
+            <input type="password" id="loginPass" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 mb-3">Masuk</button>
+        <p class="text-center">Belum punya akun? <a href="#" onclick="toggleAuth()">Daftar</a></p>
+    </form>
+
+    <form id="registerForm" class="hidden">
+        <div class="mb-3">
+            <label>Nama Lengkap</label>
+            <input type="text" id="regName" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Email</label>
+            <input type="email" id="regEmail" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Password</label>
+            <input type="password" id="regPass" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success w-100 mb-3">Buat Akun</button>
+        <p class="text-center">Sudah punya akun? <a href="#" onclick="toggleAuth()">Login</a></p>
+    </form>
+</div>
+
+<script src="js/auth.js"></script>
+</body>
+</html>
