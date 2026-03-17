@@ -89,19 +89,23 @@ function renderTable() {
 
         tableBody.innerHTML += `
             <tr class="${rowClass}">
-                <td class="fw-bold text-start ps-3" style="cursor: pointer;" 
-                    onclick="editField(${item.id}, 'name', '${item.name}')">
-                    <span class="text-primary text-decoration-underline-hover">${item.name}</span> 
-                    ${stockAlert}
+                <td class="fw-bold text-start ps-3" style="cursor: pointer;" onclick="editField(${item.id}, 'name', '${item.name}')">
+                    ${item.name} ${stockAlert}
                 </td>
                 
-                <td class="align-middle" style="cursor: pointer;" 
-                    onclick="editField(${item.id}, 'stock', ${item.stock})">
-                    <span class="badge bg-light text-dark border">${item.stock}</span>
+                <td class="align-middle">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <button class="btn btn-sm btn-outline-secondary p-1" style="width: 25px; height: 25px; line-height: 1;" onclick="adjustStock(${item.id}, -1)">-</button>
+                        
+                        <span class="fw-bold" style="cursor: pointer; min-width: 30px;" onclick="editField(${item.id}, 'stock', ${item.stock})">
+                            ${item.stock}
+                        </span>
+                        
+                        <button class="btn btn-sm btn-outline-primary p-1" style="width: 25px; height: 25px; line-height: 1;" onclick="adjustStock(${item.id}, 1)">+</button>
+                    </div>
                 </td>
                 
-                <td class="align-middle" style="cursor: pointer;" 
-                    onclick="editField(${item.id}, 'price', ${item.price})">
+                <td class="align-middle" style="cursor: pointer;" onclick="editField(${item.id}, 'price', ${item.price})">
                     Rp ${item.price.toLocaleString('id-ID')}
                 </td>
                 
@@ -239,4 +243,29 @@ function editField(id, field, currentVal) {
             }
         }
     });
+}
+function adjustStock(id, amount) {
+    const index = products.findIndex(p => p.id === id);
+    if (index !== -1) {
+        // Update stok tapi jangan sampe minus
+        const newStock = products[index].stock + amount;
+        
+        if (newStock < 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Eits!',
+                text: 'Stok nggak bisa kurang dari 0, Bos!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            return;
+        }
+
+        products[index].stock = newStock;
+        
+        // Simpan dan Refresh
+        localStorage.setItem('myProducts', JSON.stringify(products));
+        renderTable();
+        updateStats();
+    }
 }
