@@ -122,3 +122,39 @@ window.onload = () => {
     renderTable();
     updateStats();
 };
+function searchData() {
+    // 1. Ambil kata kunci dari input, ubah ke huruf kecil biar gak sensitif
+    const keyword = document.getElementById('searchInput').value.toLowerCase();
+    const tableBody = document.getElementById('productTable');
+    
+    // 2. Filter data dari array products utama
+    const filteredProducts = products.filter(item => {
+        return item.name.toLowerCase().includes(keyword);
+    });
+
+    // 3. Tampilkan hasil filter ke tabel (pake logika yang mirip renderTable)
+    tableBody.innerHTML = '';
+    
+    if (filteredProducts.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="4" class="text-muted py-4">Barang tidak ditemukan...</td></tr>`;
+        return;
+    }
+
+    filteredProducts.forEach((item) => {
+        const isLowStock = item.stock <= 5;
+        const rowClass = isLowStock ? 'table-warning-custom' : '';
+        const stockAlert = isLowStock ? `<br><span class="badge-low-stock">Stok Menipis!</span>` : '';
+
+        tableBody.innerHTML += `
+            <tr class="${rowClass}">
+                <td class="fw-bold text-start ps-3">${item.name} ${stockAlert}</td>
+                <td class="align-middle">${item.stock}</td>
+                <td class="align-middle">Rp ${item.price.toLocaleString('id-ID')}</td>
+                <td class="align-middle">
+                    <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteProduct(${item.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+    });
+}
