@@ -18,17 +18,18 @@ function saveProduct() {
     const price = document.getElementById('pPrice').value;
 
     if (name && stock && price) {
+        const sValue = parseInt(stock);
         const newProduct = {
             id: Date.now(),
             name: name,
-            stock: parseInt(stock) || 0,
-            price: parseInt(price) || 0
+            stock: sValue,
+            price: parseInt(price)
         };
 
         products.push(newProduct);
         localStorage.setItem('myProducts', JSON.stringify(products));
         
-        // Bersihkan Form
+        // Reset Form
         document.getElementById('pName').value = '';
         document.getElementById('pStock').value = '';
         document.getElementById('pPrice').value = '';
@@ -36,8 +37,31 @@ function saveProduct() {
         closeForm();
         renderTable();
         updateStats();
+
+        // NOTIFIKASI PREMIUM
+        if (sValue <= 5) {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Produk tersimpan, tapi stok menipis (≤ 5)!',
+                icon: 'warning',
+                confirmButtonColor: '#3085d6'
+            });
+        } else {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Produk baru telah ditambahkan.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
     } else {
-        alert("Jangan ada yang kosong, Bos!");
+        Swal.fire({
+            title: 'Waduh!',
+            text: 'Isi semua data dulu, Bos!',
+            icon: 'error',
+            confirmButtonColor: '#d33'
+        });
     }
 }
 
