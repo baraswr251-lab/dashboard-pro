@@ -1,21 +1,17 @@
-// Data disimpan di LocalStorage supaya nggak hilang pas di-refresh
 let products = JSON.parse(localStorage.getItem('myProducts')) || [];
 
-// Fungsi nampilin Form Tambah
+// BAGIAN 1: KONTROL POP-UP
 function showAddForm() {
     const modal = document.getElementById('addModal');
-    // Kita hapus class hidden dan paksa display jadi flex
-    modal.classList.remove('hidden');
-    modal.style.setProperty('display', 'flex', 'important');
+    if (modal) modal.style.setProperty('display', 'flex', 'important');
 }
 
 function closeForm() {
     const modal = document.getElementById('addModal');
-    // Kita sembunyiin lagi
-    modal.style.setProperty('display', 'none', 'important');
-    modal.classList.add('hidden');
+    if (modal) modal.style.setProperty('display', 'none', 'important');
 }
-// Fungsi Simpan Barang
+
+// BAGIAN 2: LOGIKA SIMPAN
 function saveProduct() {
     const name = document.getElementById('pName').value;
     const stock = document.getElementById('pStock').value;
@@ -25,68 +21,69 @@ function saveProduct() {
         const newProduct = {
             id: Date.now(),
             name: name,
-            stock: parseInt(stock),
-            price: parseInt(price)
+            stock: parseInt(stock) || 0,
+            price: parseInt(price) || 0
         };
 
         products.push(newProduct);
         localStorage.setItem('myProducts', JSON.stringify(products));
         
-        // Reset form dan tutup
+        // Bersihkan Form
         document.getElementById('pName').value = '';
         document.getElementById('pStock').value = '';
         document.getElementById('pPrice').value = '';
-        closeForm();
         
-        // Refresh tampilan
+        closeForm();
         renderTable();
         updateStats();
     } else {
-        alert("Isi semua data dulu, Bos!");
+        alert("Jangan ada yang kosong, Bos!");
     }
 }
 
-// Fungsi Update Angka-angka di Kotak Atas
+// BAGIAN 3: UPDATE TAMPILAN (ID SUDAH DISINKRONKAN)
 function updateStats() {
     const totalProd = products.length;
     const totalStok = products.reduce((sum, item) => sum + item.stock, 0);
     const totalAset = products.reduce((sum, item) => sum + (item.stock * item.price), 0);
 
-    document.getElementById('totalProducts').innerText = totalProd;
-    document.getElementById('totalStok').innerText = totalStok;
-    // Format Rupiah sederhana
-    document.querySelector('.card h3:nth-child(1)').parentElement.querySelectorAll('h3')[2].innerText = "Rp " + totalAset.toLocaleString();
+    // Target ID harus pas sama di dashboard.html
+    if(document.getElementById('totalProducts')) document.getElementById('totalProducts').innerText = totalProd;
+    if(document.getElementById('totalStock')) document.getElementById('totalStock').innerText = totalStok;
+    if(document.getElementById('totalValue')) document.getElementById('totalValue').innerText = totalAset.toLocaleString('id-ID');
 }
 
-// Fungsi Nampilin Data ke Tabel
 function renderTable() {
     const tableBody = document.getElementById('productTable');
+    if (!tableBody) return;
     tableBody.innerHTML = '';
 
-    products.forEach((item, index) => {
+    products.forEach((item) => {
         tableBody.innerHTML += `
             <tr>
-                <td>${item.name}</td>
+                <td class="fw-bold">${item.name}</td>
                 <td>${item.stock}</td>
-                <td>Rp ${item.price.toLocaleString()}</td>
+                <td>Rp ${item.price.toLocaleString('id-ID')}</td>
                 <td>
-                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${item.id})">Hapus</button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteProduct(${item.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </td>
-            </tr>
-        `;
+            </tr>`;
     });
 }
 
-// Fungsi Hapus Barang
 function deleteProduct(id) {
-    products = products.filter(p => p.id !== id);
-    localStorage.setItem('myProducts', JSON.stringify(products));
-    renderTable();
-    updateStats();
+    if (confirm("Hapus barang ini dari daftar?")) {
+        products = products.filter(p => p.id !== id);
+        localStorage.setItem('myProducts', JSON.stringify(products));
+        renderTable();
+        updateStats();
+    }
 }
 
-// Jalankan fungsi saat halaman dibuka
-window.onload = function() {
+// Inisialisasi awal
+window.onload = () => {
     renderTable();
     updateStats();
 };
