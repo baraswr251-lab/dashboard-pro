@@ -3,51 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Digital Manager Pro</title>
+    <title>Login - DigiPro</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #f4f7f6; height: 100vh; display: flex; align-items: center; }
-        .auth-card { width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin: auto; }
-        .hidden { display: none; }
-        .btn-primary { background: #0984e3; border: none; }
+        body { background: #f8f9fa; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-card { width: 100%; max-width: 400px; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: #fff; }
     </style>
 </head>
 <body>
 
-<div class="auth-card">
-    <h3 class="text-center fw-bold mb-4" id="authTitle">Login</h3>
-    
-    <form id="loginForm">
-        <div class="mb-3">
-            <label>Email</label>
-            <input type="email" id="loginEmail" class="form-control" placeholder="admin@pro.com" required>
-        </div>
-        <div class="mb-3">
-            <label>Password</label>
-            <input type="password" id="loginPass" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary w-100 mb-3">Masuk</button>
-        <p class="text-center">Belum punya akun? <a href="#" onclick="toggleAuth()">Daftar</a></p>
-    </form>
+<div class="login-card text-center">
+    <i class="fas fa-bolt fa-3x text-primary mb-3"></i>
+    <h3 class="fw-bold mb-1" id="authTitle">Selamat Datang</h3>
+    <p class="text-muted mb-4" id="authSubtitle">Masukkan akun untuk lanjut</p>
 
-    <form id="registerForm" class="hidden">
-        <div class="mb-3">
-            <label>Nama Lengkap</label>
-            <input type="text" id="regName" class="form-control" required>
+    <form id="authForm">
+        <div class="mb-3 text-start">
+            <label class="form-label">Username</label>
+            <input type="text" id="userInput" class="form-control" placeholder="Contoh: admin" required>
         </div>
-        <div class="mb-3">
-            <label>Email</label>
-            <input type="email" id="regEmail" class="form-control" required>
+        <div class="mb-4 text-start">
+            <label class="form-label">Password</label>
+            <input type="password" id="passInput" class="form-control" placeholder="••••••••" required>
         </div>
-        <div class="mb-3">
-            <label>Password</label>
-            <input type="password" id="regPass" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-success w-100 mb-3">Buat Akun</button>
-        <p class="text-center">Sudah punya akun? <a href="#" onclick="toggleAuth()">Login</a></p>
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">Masuk / Daftar</button>
     </form>
+    
+    <div id="statusMsg" class="mt-3 small"></div>
 </div>
 
 <script src="js/auth.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // 1. CEK STATUS USER (Biar teksnya berubah kalau belum ada user)
+    const registered = localStorage.getItem('registeredUser');
+    if (!registered) {
+        document.getElementById('authTitle').innerText = "Daftar Akun Baru";
+        document.getElementById('authSubtitle').innerText = "Input pertama akan jadi akun tetap Anda";
+    }
+
+    // 2. LOGIKA TOMBOL SAAT DIKLIK
+    document.getElementById('authForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const user = document.getElementById('userInput').value;
+        const pass = document.getElementById('passInput').value;
+
+        // Panggil fungsi handleAuth dari file js/auth.js
+        const result = handleAuth(user, pass);
+
+        if (result === "DAFTAR_SUKSES") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil Daftar!',
+                text: 'Akun Anda sudah dibuat. Menuju Dashboard...',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = 'dashboard.html';
+            });
+        } 
+        else if (result === "LOGIN_SUKSES") {
+            window.location.href = 'dashboard.html';
+        } 
+        else if (result === "SALAH_PASSWORD") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Login',
+                text: 'Password salah, Bos! Coba diingat lagi.',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
