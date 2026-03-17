@@ -109,14 +109,34 @@ function renderTable() {
 }
 
 function deleteProduct(id) {
-    if (confirm("Hapus barang ini dari daftar?")) {
-        products = products.filter(p => p.id !== id);
-        localStorage.setItem('myProducts', JSON.stringify(products));
-        renderTable();
-        updateStats();
-    }
-}
+    Swal.fire({
+        title: 'Yakin mau hapus?',
+        text: "Data yang dihapus nggak bisa balik lagi, Bos!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Jalankan proses hapus
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('myProducts', JSON.stringify(products));
+            
+            // Refresh tampilan
+            renderTable();
+            updateStats();
 
+            // Notif sukses hapus
+            Swal.fire(
+                'Terhapus!',
+                'Barang lo udah ilang dari daftar.',
+                'success'
+            );
+        }
+    });
+}
 // Inisialisasi awal
 window.onload = () => {
     renderTable();
