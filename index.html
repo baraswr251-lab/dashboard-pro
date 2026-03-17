@@ -45,11 +45,11 @@
         <p class="text-muted small mb-4">Buat akun untuk akses penuh</p>
         <form id="regForm">
             <div class="mb-3 text-start">
-                <label class="small fw-bold text-secondary">Nama Akun</label>
-                <input type="text" id="regUser" class="form-control" placeholder="Contoh: admin" required>
+                <label class="small fw-bold text-secondary">Nama Akun Baru</label>
+                <input type="text" id="regUser" class="form-control" placeholder="Contoh: admin_toko" required>
             </div>
             <div class="mb-4 text-start">
-                <label class="small fw-bold text-secondary">Password</label>
+                <label class="small fw-bold text-secondary">Password Baru</label>
                 <input type="password" id="regPass" class="form-control" placeholder="Minimal 6 karakter" required>
             </div>
             <button type="submit" class="btn btn-success btn-custom shadow-sm">Daftar Akun</button>
@@ -57,45 +57,79 @@
         </form>
     </div>
 </div>
-
 <script src="js/auth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    // 1. Fungsi Buka/Tutup Pop-up
     function openRegister() { document.getElementById('registerModal').style.display = 'flex'; }
     function closeRegister() { document.getElementById('registerModal').style.display = 'none'; }
 
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const u = document.getElementById('loginUser').value;
-        const p = document.getElementById('loginPass').value;
-        const registered = JSON.parse(localStorage.getItem('registeredUser'));
-        
-        if (!registered) {
-            Swal.fire('Gagal!', 'Belum ada akun. Klik "Buat Akun" dulu!', 'warning');
-        } else if (u === registered.username && p === registered.password) {
-            createSession();
-            window.location.href = 'dashboard.html';
-        } else {
-            Swal.fire('Error!', 'Akun atau Password salah!', 'error');
-        }
-    });
-
+    // 2. Logika REGISTRASI (Tambah ke daftar, bukan nimpa)
     document.getElementById('regForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const u = document.getElementById('regUser').value;
         const p = document.getElementById('regPass').value;
-        localStorage.setItem('registeredUser', JSON.stringify({ username: u, password: p }));
+
+        // Ambil daftar user yang sudah ada, atau buat array kosong kalau belum ada
+        let allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
+
+        // Cek apakah nama akun sudah dipakai
+        if (allUsers.find(user => user.username === u)) {
+            return Swal.fire('Eits!', 'Nama akun sudah ada, Bos. Cari nama lain!', 'warning');
+        }
+
+        // Tambahkan user baru ke daftar
+        allUsers.push({ username: u, password: p });
+        localStorage.setItem('allUsers', JSON.stringify(allUsers));
         
-        Swal.fire('Sukses!', 'Akun "' + u + '" berhasil dibuat.', 'success');
+        // Penanda buat auth.js biar gak nendang balik ke login
+        localStorage.setItem('registeredUser', 'true');
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Akun "' + u + '" sudah terdaftar. Silakan Login!',
+            confirmButtonColor: '#0d6efd'
+        });
+
         closeRegister();
-        document.getElementById('loginUser').value = u;
+        document.getElementById('loginUser').value = u; // Auto-isi nama akun di form login
+        document.getElementById('regForm').reset(); // Kosongin form daftar
     });
 
-    function createSession() {
-        localStorage.setItem('userSession', JSON.stringify({ loginTime: new Date().getTime() }));
-    }
-</script>
+    // 3. Logika LOGIN (Cek di dalam daftar user)
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const u = document.getElementById('loginUser').value;
+        const p = document.getElementById('loginPass').value;
 
+        const allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
+        
+        // Cari user yang cocok username & password-nya
+        const userFound = allUsers.find(user => user.username === u && user.password === p);
+
+        if (userFound) {
+            // Simpan siapa yang lagi masuk (buat di Dashboard nanti)
+            localStorage.setItem('currentUser', JSON.stringify(userFound));
+            
+            // Jalankan fungsi buat sesi (dari auth.js atau manual)
+            if (typeof createSession === "function") {
+                createSession();
+            } else {
+                localStorage.setItem('userSession', JSON.stringify({ loginTime: new Date().getTime() }));
+            }
+
+            window.location.href = 'dashboard.html';
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: 'Akun atau Password salah, Bos!',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+</script>
 </body>
 </html>
