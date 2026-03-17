@@ -8,50 +8,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-card { width: 90%; max-width: 400px; padding: 2rem; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #fff; text-align: center; }
-        .icon-box { width: 60px; height: 60px; background: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; }
-        .form-control { border-radius: 0.8rem; padding: 0.7rem; }
-        .btn-custom { border-radius: 0.8rem; padding: 0.7rem; font-weight: 600; width: 100%; margin-bottom: 10px; }
-        /* Style Modal Manual */
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index: 9999; }
-        .modal-box { background: white; padding: 2rem; border-radius: 1.5rem; width: 85%; max-width: 380px; }
+        .login-card { width: 90%; max-width: 400px; padding: 2.5rem 2rem; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #fff; text-align: center; }
+        .icon-box { width: 60px; height: 60px; background: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; }
+        .form-control { border-radius: 0.8rem; padding: 0.75rem; border: 1px solid #dee2e6; }
+        .btn-custom { border-radius: 0.8rem; padding: 0.75rem; font-weight: 600; width: 100%; margin-bottom: 12px; transition: 0.3s; }
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
+        .modal-box { background: white; padding: 2.5rem 2rem; border-radius: 1.5rem; width: 100%; max-width: 400px; text-align: center; }
+        hr { opacity: 0.1; margin: 1.5rem 0; }
     </style>
 </head>
 <body>
 
 <div class="login-card">
-    <div class="icon-box"><i class="fas fa-lock"></i></div>
+    <div class="icon-box"><i class="fas fa-user-shield"></i></div>
     <h3 class="fw-bold mb-1">Masuk Dashboard</h3>
-    <p class="text-muted mb-4 small">Silakan login atau daftar akun baru</p>
+    <p class="text-muted mb-4 small">Gunakan akun Anda untuk masuk</p>
 
     <form id="loginForm">
         <div class="mb-3 text-start">
-            <input type="text" id="loginUser" class="form-control" placeholder="Username" required>
+            <input type="text" id="loginUser" class="form-control" placeholder="Akun" required>
         </div>
         <div class="mb-4 text-start">
             <input type="password" id="loginPass" class="form-control" placeholder="Password" required>
         </div>
-        <button type="submit" class="btn btn-primary btn-custom">Masuk Sekarang</button>
+        <button type="submit" class="btn btn-primary btn-custom shadow-sm">Masuk Sekarang</button>
     </form>
     
-    <hr class="text-muted">
-    <p class="small text-muted">Belum punya akun?</p>
+    <hr>
+    <p class="small text-muted mb-3">Belum punya akun?</p>
     <button class="btn btn-outline-primary btn-custom" onclick="openRegister()">Buat Akun / Daftar</button>
 </div>
 
 <div class="modal-overlay" id="registerModal">
     <div class="modal-box">
-        <h4 class="fw-bold mb-3">Registrasi Akun</h4>
+        <h4 class="fw-bold mb-1">Registrasi Baru</h4>
+        <p class="text-muted small mb-4">Buat akun untuk akses penuh</p>
         <form id="regForm">
             <div class="mb-3 text-start">
-                <label class="small fw-bold">Username Baru</label>
-                <input type="text" id="regUser" class="form-control" required>
+                <label class="small fw-bold text-secondary">Nama Akun</label>
+                <input type="text" id="regUser" class="form-control" placeholder="Contoh: admin" required>
             </div>
             <div class="mb-4 text-start">
-                <label class="small fw-bold">Password Baru</label>
-                <input type="password" id="regPass" class="form-control" required>
+                <label class="small fw-bold text-secondary">Password</label>
+                <input type="password" id="regPass" class="form-control" placeholder="Minimal 6 karakter" required>
             </div>
-            <button type="submit" class="btn btn-success btn-custom">Daftar Akun</button>
+            <button type="submit" class="btn btn-success btn-custom shadow-sm">Daftar Akun</button>
             <button type="button" class="btn btn-light btn-custom" onclick="closeRegister()">Batal</button>
         </form>
     </div>
@@ -61,43 +62,36 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // FUNGSI MODAL
     function openRegister() { document.getElementById('registerModal').style.display = 'flex'; }
     function closeRegister() { document.getElementById('registerModal').style.display = 'none'; }
 
-    // LOGIKA LOGIN
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const u = document.getElementById('loginUser').value;
         const p = document.getElementById('loginPass').value;
-        
         const registered = JSON.parse(localStorage.getItem('registeredUser'));
         
         if (!registered) {
-            Swal.fire('Gagal!', 'Belum ada akun terdaftar. Silakan Daftar dulu!', 'warning');
+            Swal.fire('Gagal!', 'Belum ada akun. Klik "Buat Akun" dulu!', 'warning');
         } else if (u === registered.username && p === registered.password) {
             createSession();
             window.location.href = 'dashboard.html';
         } else {
-            Swal.fire('Error!', 'Username atau Password salah!', 'error');
+            Swal.fire('Error!', 'Akun atau Password salah!', 'error');
         }
     });
 
-    // LOGIKA REGISTRASI (Simpan data baru)
     document.getElementById('regForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const u = document.getElementById('regUser').value;
         const p = document.getElementById('regPass').value;
-
-        // Simpan ke registeredUser
         localStorage.setItem('registeredUser', JSON.stringify({ username: u, password: p }));
         
-        Swal.fire('Berhasil!', 'Akun dibuat. Silakan Login!', 'success');
+        Swal.fire('Sukses!', 'Akun "' + u + '" berhasil dibuat.', 'success');
         closeRegister();
-        document.getElementById('loginUser').value = u; // Auto-fill username di login
+        document.getElementById('loginUser').value = u;
     });
 
-    // Fungsi createSession (Harus ada kalau gak dipanggil via auth.js)
     function createSession() {
         localStorage.setItem('userSession', JSON.stringify({ loginTime: new Date().getTime() }));
     }
