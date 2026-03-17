@@ -1,4 +1,16 @@
-let products = JSON.parse(localStorage.getItem('myProducts')) || [];
+// 1. Ambil info siapa yang lagi login sekarang
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+const userKey = currentUser ? `products_${currentUser.username}` : 'myProducts';
+
+// 2. Ambil data barang KHUSUS buat akun yang lagi login
+let products = JSON.parse(localStorage.getItem(userKey)) || [];
+
+// 3. Update fungsi simpan agar pake kunci yang spesifik tadi
+function saveAndRefresh() {
+    localStorage.setItem(userKey, JSON.stringify(products)); // Simpan ke lemari masing-masing
+    renderTable();
+    updateStats();
+}
 
 function renderTable() {
     const tableBody = document.getElementById('productTable');
