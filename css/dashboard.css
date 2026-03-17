@@ -64,3 +64,28 @@ root {
     }
     #wrapper.toggled #sidebar-wrapper { margin-left: -15rem; }
 }
+/* 1. Warna baris untuk stok menipis (Soft Red) */
+.table-warning-custom {
+    background-color: #fff5f5 !important; /* Merah sangat muda */
+    transition: 0.3s;
+}
+
+/* 2. Badge peringatan stok */
+.badge-low-stock {
+    background-color: #dc3545;
+    color: white;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 50px;
+    font-weight: bold;
+    display: inline-block;
+    margin-left: 5px;
+    animation: pulse-red 2s infinite; /* Efek kedip halus */
+}
+
+/* 3. Efek animasi kedip biar mata klien langsung tertuju ke sana */
+@keyframes pulse-red {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
