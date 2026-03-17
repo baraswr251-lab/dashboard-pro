@@ -149,20 +149,17 @@ window.onload = () => {
     updateStats();
 };
 function searchData() {
-    // 1. Ambil kata kunci dari input, ubah ke huruf kecil biar gak sensitif
     const keyword = document.getElementById('searchInput').value.toLowerCase();
     const tableBody = document.getElementById('productTable');
     
-    // 2. Filter data dari array products utama
     const filteredProducts = products.filter(item => {
         return item.name.toLowerCase().includes(keyword);
     });
 
-    // 3. Tampilkan hasil filter ke tabel (pake logika yang mirip renderTable)
     tableBody.innerHTML = '';
     
     if (filteredProducts.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="4" class="text-muted py-4">Barang tidak ditemukan...</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="4" class="text-muted py-4">Barang "${keyword}" tidak ditemukan...</td></tr>`;
         return;
     }
 
@@ -171,11 +168,25 @@ function searchData() {
         const rowClass = isLowStock ? 'table-warning-custom' : '';
         const stockAlert = isLowStock ? `<br><span class="badge-low-stock">Stok Menipis!</span>` : '';
 
+        // --- LOGIKA HIGHLIGHT (MAGICNYA DI SINI) ---
+        let displayName = item.name;
+        if (keyword !== '') {
+            const regExp = new RegExp(`(${keyword})`, 'gi');
+            displayName = item.name.replace(regExp, `<mark style="padding:0; background: yellow;">$1</mark>`);
+        }
+        // -------------------------------------------
+
         tableBody.innerHTML += `
             <tr class="${rowClass}">
-                <td class="fw-bold text-start ps-3">${item.name} ${stockAlert}</td>
-                <td class="align-middle">${item.stock}</td>
-                <td class="align-middle">Rp ${item.price.toLocaleString('id-ID')}</td>
+                <td class="fw-bold text-start ps-3" style="cursor: pointer;" onclick="editField(${item.id}, 'name', '${item.name}')">
+                    ${displayName} ${stockAlert}
+                </td>
+                <td class="align-middle" style="cursor: pointer;" onclick="editField(${item.id}, 'stock', ${item.stock})">
+                    <span class="badge bg-light text-dark border">${item.stock}</span>
+                </td>
+                <td class="align-middle" style="cursor: pointer;" onclick="editField(${item.id}, 'price', ${item.price})">
+                    Rp ${item.price.toLocaleString('id-ID')}
+                </td>
                 <td class="align-middle">
                     <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteProduct(${item.id})">
                         <i class="fas fa-trash"></i>
@@ -184,6 +195,7 @@ function searchData() {
             </tr>`;
     });
 }
+
 function editField(id, field, currentVal) {
     // Tentukan tipe input: kalau stok/harga pake number, kalau nama pake text
     const inputType = (field === 'stock' || field === 'price') ? 'number' : 'text';
