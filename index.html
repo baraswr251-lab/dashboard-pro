@@ -110,19 +110,27 @@
 
     // 4. Logic Login
     document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const u = document.getElementById('loginUser').value;
-        const p = document.getElementById('loginPass').value;
-        const allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
-        const userFound = allUsers.find(uAkun => uAkun.username === u && uAkun.password === p);
+    e.preventDefault();
+    const u = document.getElementById('loginUser').value;
+    const p = document.getElementById('loginPass').value;
+    
+    // Ambil daftar user
+    const allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
+    
+    // Cari user
+    const userFound = allUsers.find(akun => akun.username === u && akun.password === p);
 
-        if (userFound) {
-            localStorage.setItem('currentUser', JSON.stringify(userFound));
-            window.location.href = 'dashboard.html';
-        } else {
-            Swal.fire('Error!', 'Akun/Password Salah!', 'error');
-        }
-    });
+    if (userFound) {
+        // SIMPAN DATA LOGIN
+        localStorage.setItem('currentUser', JSON.stringify(userFound));
+        // BUAT SESI (Biar gak ditendang auth.js)
+        localStorage.setItem('userSession', 'active'); 
+        
+        window.location.href = 'dashboard.html';
+    } else {
+        Swal.fire('Gagal!', 'Akun atau Password salah!', 'error');
+    }
+});
 </script>
 </body>
 </html>
