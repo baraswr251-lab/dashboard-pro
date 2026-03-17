@@ -12,6 +12,20 @@
         .icon-box { width: 60px; height: 60px; background: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; }
         .form-control { border-radius: 0.8rem; padding: 0.75rem; border: 1px solid #dee2e6; }
         .btn-custom { border-radius: 0.8rem; padding: 0.75rem; font-weight: 600; width: 100%; margin-bottom: 12px; transition: 0.3s; }
+        
+        /* FIX: Ikon Mata Biar Muncul */
+        .password-wrapper { position: relative; }
+        .password-wrapper i { 
+            position: absolute; 
+            right: 15px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            cursor: pointer; 
+            color: #6c757d; 
+            z-index: 10;
+        }
+        .password-wrapper .form-control { padding-right: 45px; }
+
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
         .modal-box { background: white; padding: 2.5rem 2rem; border-radius: 1.5rem; width: 100%; max-width: 400px; text-align: center; }
         hr { opacity: 0.1; margin: 1.5rem 0; }
@@ -26,133 +40,89 @@
 
     <form id="loginForm">
         <div class="mb-3 text-start">
-            <input type="text" id="loginUser" class="form-control" placeholder="Akun" required>
+            <input type="text" id="loginUser" class="form-control" placeholder="Akun" required autocomplete="off">
         </div>
-        <div class="mb-4 text-start">
+        <div class="mb-4 text-start password-wrapper">
             <input type="password" id="loginPass" class="form-control" placeholder="Password" required>
+            <i class="fas fa-eye-slash" id="eyeLogin" onclick="togglePassword('loginPass', 'eyeLogin')"></i>
         </div>
-        <button type="submit" class="btn btn-primary btn-custom shadow-sm">Masuk Sekarang</button>
+        <button type="submit" class="btn btn-primary btn-custom">Masuk Sekarang</button>
     </form>
     
     <hr>
-    <p class="small text-muted mb-3">Belum punya akun?</p>
     <button class="btn btn-outline-primary btn-custom" onclick="openRegister()">Buat Akun / Daftar</button>
 </div>
 
 <div class="modal-overlay" id="registerModal">
     <div class="modal-box">
         <h4 class="fw-bold mb-1">Registrasi Baru</h4>
-        <p class="text-muted small mb-4">Buat akun untuk akses penuh</p>
         <form id="regForm">
             <div class="mb-3 text-start">
-                <label class="small fw-bold text-secondary">Nama Akun Baru</label>
-                <input type="text" id="regUser" class="form-control" placeholder="Contoh: admin_toko" required>
+                <input type="text" id="regUser" class="form-control" placeholder="Nama Akun" required autocomplete="off">
             </div>
-            <div class="mb-4 text-start">
-                <label class="small fw-bold text-secondary">Password Baru</label>
-                <input type="password" id="regPass" class="form-control" placeholder="Minimal 6 karakter" required>
+            <div class="mb-4 text-start password-wrapper">
+                <input type="password" id="regPass" class="form-control" placeholder="Password" required>
+                <i class="fas fa-eye-slash" id="eyeReg" onclick="togglePassword('regPass', 'eyeReg')"></i>
             </div>
-            <button type="submit" class="btn btn-success btn-custom shadow-sm">Daftar Akun</button>
+            <button type="submit" class="btn btn-success btn-custom">Daftar Akun</button>
             <button type="button" class="btn btn-light btn-custom" onclick="closeRegister()">Batal</button>
         </form>
     </div>
 </div>
+
 <script src="js/auth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // 1. Fungsi Buka/Tutup Pop-up
+    // 1. Fungsi Modal
     function openRegister() { document.getElementById('registerModal').style.display = 'flex'; }
     function closeRegister() { document.getElementById('registerModal').style.display = 'none'; }
 
-    // 2. Logika REGISTRASI (Tambah ke daftar, bukan nimpa)
+    // 2. Fungsi Mata Password
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace("fa-eye-slash", "fa-eye");
+        } else {
+            input.type = "password";
+            icon.classList.replace("fa-eye", "fa-eye-slash");
+        }
+    }
+
+    // 3. Logic Registrasi
     document.getElementById('regForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const u = document.getElementById('regUser').value;
         const p = document.getElementById('regPass').value;
-
-        // Ambil daftar user yang sudah ada, atau buat array kosong kalau belum ada
         let allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
 
-        // Cek apakah nama akun sudah dipakai
         if (allUsers.find(user => user.username === u)) {
-            return Swal.fire('Eits!', 'Nama akun sudah ada, Bos. Cari nama lain!', 'warning');
+            return Swal.fire('Gagal!', 'Akun sudah ada!', 'warning');
         }
 
-        // Tambahkan user baru ke daftar
         allUsers.push({ username: u, password: p });
         localStorage.setItem('allUsers', JSON.stringify(allUsers));
-        
-        // Penanda buat auth.js biar gak nendang balik ke login
-        localStorage.setItem('registeredUser', 'true');
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Akun "' + u + '" sudah terdaftar. Silakan Login!',
-            confirmButtonColor: '#0d6efd'
-        });
-
+        Swal.fire('Sukses!', 'Silakan login.', 'success');
         closeRegister();
-        document.getElementById('loginUser').value = u; // Auto-isi nama akun di form login
-        document.getElementById('regForm').reset(); // Kosongin form daftar
     });
 
-    // 3. Logika LOGIN (Cek di dalam daftar user)
+    // 4. Logic Login
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const u = document.getElementById('loginUser').value;
         const p = document.getElementById('loginPass').value;
-
         const allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
-        
-        // Cari user yang cocok username & password-nya
-        const userFound = allUsers.find(user => user.username === u && user.password === p);
+        const userFound = allUsers.find(uAkun => uAkun.username === u && uAkun.password === p);
 
         if (userFound) {
-            // Simpan siapa yang lagi masuk (buat di Dashboard nanti)
             localStorage.setItem('currentUser', JSON.stringify(userFound));
-            
-            // Jalankan fungsi buat sesi (dari auth.js atau manual)
-            if (typeof createSession === "function") {
-                createSession();
-            } else {
-                localStorage.setItem('userSession', JSON.stringify({ loginTime: new Date().getTime() }));
-            }
-
             window.location.href = 'dashboard.html';
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: 'Akun atau Password salah, Bos!',
-                confirmButtonColor: '#d33'
-            });
+            Swal.fire('Error!', 'Akun/Password Salah!', 'error');
         }
     });
-        <script src="js/auth.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        // Fungsi Buka/Tutup Pop-up Registrasi
-        function openRegister() { ... }
-        function closeRegister() { ... }
-
-        // FUNGSI MATA PASSWORD (YANG BARU)
-        function togglePassword(inputId, iconId) {
-            const passwordInput = document.getElementById(inputId);
-            const eyeIcon = document.getElementById(iconId);
-
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                eyeIcon.classList.remove("fa-eye-slash");
-                eyeIcon.classList.add("fa-eye");
-            } else {
-                passwordInput.type = "password";
-                eyeIcon.classList.remove("fa-eye");
-                eyeIcon.classList.add("fa-eye-slash");
-            }
-        }
 </script>
 </body>
 </html>
