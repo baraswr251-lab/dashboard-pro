@@ -59,13 +59,24 @@ function renderTable() {
     tableBody.innerHTML = '';
 
     products.forEach((item) => {
+        // 1. Logika Cek Stok: Kalau <= 5, kasih class CSS khusus
+        const isLowStock = item.stock <= 5;
+        const rowClass = isLowStock ? 'table-warning-custom' : '';
+        
+        // 2. Tambahin label "Stok Menipis" kalau stok dikit
+        const stockAlert = isLowStock 
+            ? `<br><span class="badge-low-stock">Stok Menipis!</span>` 
+            : '';
+
         tableBody.innerHTML += `
-            <tr>
-                <td class="fw-bold">${item.name}</td>
-                <td>${item.stock}</td>
-                <td>Rp ${item.price.toLocaleString('id-ID')}</td>
-                <td>
-                    <button class="btn btn-outline-danger btn-sm" onclick="deleteProduct(${item.id})">
+            <tr class="${rowClass}">
+                <td class="fw-bold text-start ps-3">
+                    ${item.name} ${stockAlert}
+                </td>
+                <td class="align-middle">${item.stock}</td>
+                <td class="align-middle">Rp ${item.price.toLocaleString('id-ID')}</td>
+                <td class="align-middle">
+                    <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteProduct(${item.id})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
