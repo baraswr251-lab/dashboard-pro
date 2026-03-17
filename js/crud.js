@@ -83,22 +83,28 @@ function renderTable() {
     tableBody.innerHTML = '';
 
     products.forEach((item) => {
-        // 1. Logika Cek Stok: Kalau <= 5, kasih class CSS khusus
         const isLowStock = item.stock <= 5;
         const rowClass = isLowStock ? 'table-warning-custom' : '';
-        
-        // 2. Tambahin label "Stok Menipis" kalau stok dikit
-        const stockAlert = isLowStock 
-            ? `<br><span class="badge-low-stock">Stok Menipis!</span>` 
-            : '';
+        const stockAlert = isLowStock ? `<br><span class="badge-low-stock">Stok Menipis!</span>` : '';
 
         tableBody.innerHTML += `
             <tr class="${rowClass}">
-                <td class="fw-bold text-start ps-3">
-                    ${item.name} ${stockAlert}
+                <td class="fw-bold text-start ps-3" style="cursor: pointer;" 
+                    onclick="editField(${item.id}, 'name', '${item.name}')">
+                    <span class="text-primary text-decoration-underline-hover">${item.name}</span> 
+                    ${stockAlert}
                 </td>
-                <td class="align-middle">${item.stock}</td>
-                <td class="align-middle">Rp ${item.price.toLocaleString('id-ID')}</td>
+                
+                <td class="align-middle" style="cursor: pointer;" 
+                    onclick="editField(${item.id}, 'stock', ${item.stock})">
+                    <span class="badge bg-light text-dark border">${item.stock}</span>
+                </td>
+                
+                <td class="align-middle" style="cursor: pointer;" 
+                    onclick="editField(${item.id}, 'price', ${item.price})">
+                    Rp ${item.price.toLocaleString('id-ID')}
+                </td>
+                
                 <td class="align-middle">
                     <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteProduct(${item.id})">
                         <i class="fas fa-trash"></i>
@@ -176,5 +182,49 @@ function searchData() {
                     </button>
                 </td>
             </tr>`;
+    });
+}
+function editField(id, field, currentVal) {
+    // Tentukan tipe input: kalau stok/harga pake number, kalau nama pake text
+    const inputType = (field === 'stock' || field === 'price') ? 'number' : 'text';
+    const fieldLabel = field.charAt(0).toUpperCase() + field.slice(1);
+
+    Swal.fire({
+        title: `Ubah ${fieldLabel}`,
+        input: inputType,
+        inputValue: currentVal,
+        showCancelButton: true,
+        confirmButtonText: 'Simpan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#3085d6',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Data nggak boleh kosong, Bos!';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Cari index barangnya
+            const index = products.findIndex(p => p.id === id);
+            
+            if (index !== -1) {
+                // Update datanya (kalau angka di-parse dulu)
+                products[index][field] = (inputType === 'number') ? parseInt(result.value) : result.value;
+                
+                // Simpan ke LocalStorage
+                localStorage.setItem('myProducts', JSON.stringify(products));
+                
+                // Refresh tampilan & statistik
+                renderTable();
+                updateStats();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil diupdate!',
+                    timer: 1000,
+                    showConfirmButton: false
+                });
+            }
+        }
     });
 }
