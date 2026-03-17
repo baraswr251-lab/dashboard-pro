@@ -7,130 +7,79 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-card { width: 90%; max-width: 400px; padding: 2.5rem 2rem; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #fff; text-align: center; }
+        body { background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        .login-card { width: 95%; max-width: 400px; padding: 2.5rem 2rem; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #fff; text-align: center; }
         .icon-box { width: 60px; height: 60px; background: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; }
         .form-control { border-radius: 0.8rem; padding: 0.75rem; border: 1px solid #dee2e6; }
         .btn-custom { border-radius: 0.8rem; padding: 0.75rem; font-weight: 600; width: 100%; margin-bottom: 12px; transition: 0.3s; }
-        
-        /* FIX: Ikon Mata Biar Muncul */
         .password-wrapper { position: relative; }
-        .password-wrapper i { 
-            position: absolute; 
-            right: 15px; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            cursor: pointer; 
-            color: #6c757d; 
-            z-index: 10;
-        }
-        .password-wrapper .form-control { padding-right: 45px; }
-
+        .password-wrapper i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; z-index: 10; }
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
-        .modal-box { background: white; padding: 2.5rem 2rem; border-radius: 1.5rem; width: 100%; max-width: 400px; text-align: center; }
-        hr { opacity: 0.1; margin: 1.5rem 0; }
+        .modal-box { background: white; padding: 2.5rem 2rem; border-radius: 1.5rem; width: 100%; max-width: 400px; }
     </style>
 </head>
 <body>
 
 <div class="login-card">
     <div class="icon-box"><i class="fas fa-user-shield"></i></div>
-    <h3 class="fw-bold mb-1">Masuk Dashboard</h3>
-    <p class="text-muted mb-4 small">Gunakan akun Anda untuk masuk</p>
-
+    <h3 class="fw-bold mb-1">DigiPro Login</h3>
+    <p class="text-muted mb-4 small">Kelola Inventaris Lebih Mudah</p>
     <form id="loginForm">
-        <div class="mb-3 text-start">
-            <input type="text" id="loginUser" class="form-control" placeholder="Akun" required autocomplete="off">
-        </div>
+        <div class="mb-3 text-start"><input type="text" id="loginUser" class="form-control" placeholder="Username" required autocomplete="off"></div>
         <div class="mb-4 text-start password-wrapper">
             <input type="password" id="loginPass" class="form-control" placeholder="Password" required>
             <i class="fas fa-eye-slash" id="eyeLogin" onclick="togglePassword('loginPass', 'eyeLogin')"></i>
         </div>
-        <button type="submit" class="btn btn-primary btn-custom">Masuk Sekarang</button>
+        <button type="submit" class="btn btn-primary btn-custom shadow-sm">Masuk Sekarang</button>
     </form>
-    
-    <hr>
-    <button class="btn btn-outline-primary btn-custom" onclick="openRegister()">Buat Akun / Daftar</button>
+    <hr><button class="btn btn-outline-primary btn-custom" onclick="openRegister()">Daftar Akun Baru</button>
 </div>
 
 <div class="modal-overlay" id="registerModal">
     <div class="modal-box">
-        <h4 class="fw-bold mb-1">Registrasi Baru</h4>
+        <h4 class="fw-bold mb-3 text-center">Registrasi User</h4>
         <form id="regForm">
-            <div class="mb-3 text-start">
-                <input type="text" id="regUser" class="form-control" placeholder="Nama Akun" required autocomplete="off">
-            </div>
-            <div class="mb-4 text-start password-wrapper">
-                <input type="password" id="regPass" class="form-control" placeholder="Password" required>
+            <div class="mb-3"><input type="text" id="regUser" class="form-control" placeholder="Username Baru" required autocomplete="off"></div>
+            <div class="mb-4 password-wrapper">
+                <input type="password" id="regPass" class="form-control" placeholder="Password Baru" required>
                 <i class="fas fa-eye-slash" id="eyeReg" onclick="togglePassword('regPass', 'eyeReg')"></i>
             </div>
-            <button type="submit" class="btn btn-success btn-custom">Daftar Akun</button>
+            <button type="submit" class="btn btn-success btn-custom">Simpan Akun</button>
             <button type="button" class="btn btn-light btn-custom" onclick="closeRegister()">Batal</button>
         </form>
     </div>
 </div>
 
-<script src="js/auth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script src="js/auth.js"></script>
 <script>
-    // 1. Fungsi Modal
     function openRegister() { document.getElementById('registerModal').style.display = 'flex'; }
     function closeRegister() { document.getElementById('registerModal').style.display = 'none'; }
-
-    // 2. Fungsi Mata Password
-    function togglePassword(inputId, iconId) {
-        const input = document.getElementById(inputId);
-        const icon = document.getElementById(iconId);
-        if (input.type === "password") {
-            input.type = "text";
-            icon.classList.replace("fa-eye-slash", "fa-eye");
-        } else {
-            input.type = "password";
-            icon.classList.replace("fa-eye", "fa-eye-slash");
-        }
+    function togglePassword(pId, eId) {
+        const p = document.getElementById(pId), e = document.getElementById(eId);
+        if (p.type === "password") { p.type = "text"; e.classList.replace("fa-eye-slash", "fa-eye"); }
+        else { p.type = "password"; e.classList.replace("fa-eye", "fa-eye-slash"); }
     }
-
-    // 3. Logic Registrasi
     document.getElementById('regForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const u = document.getElementById('regUser').value;
-        const p = document.getElementById('regPass').value;
-        let allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
-
-        if (allUsers.find(user => user.username === u)) {
-            return Swal.fire('Gagal!', 'Akun sudah ada!', 'warning');
-        }
-
-        allUsers.push({ username: u, password: p });
-        localStorage.setItem('allUsers', JSON.stringify(allUsers));
-        Swal.fire('Sukses!', 'Silakan login.', 'success');
-        closeRegister();
+        const u = document.getElementById('regUser').value, p = document.getElementById('regPass').value;
+        let users = JSON.parse(localStorage.getItem('allUsers')) || [];
+        if (users.find(x => x.username === u)) return Swal.fire('Gagal', 'Username sudah ada!', 'error');
+        users.push({ username: u, password: p });
+        localStorage.setItem('allUsers', JSON.stringify(users));
+        Swal.fire('Berhasil!', 'Silakan Login', 'success'); closeRegister();
     });
-
-    // 4. Logic Login
     document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const u = document.getElementById('loginUser').value;
-    const p = document.getElementById('loginPass').value;
-    
-    // Ambil daftar user
-    const allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
-    
-    // Cari user
-    const userFound = allUsers.find(akun => akun.username === u && akun.password === p);
-
-    if (userFound) {
-        // SIMPAN DATA LOGIN
-        localStorage.setItem('currentUser', JSON.stringify(userFound));
-        // BUAT SESI (Biar gak ditendang auth.js)
-        localStorage.setItem('userSession', 'active'); 
-        
-        window.location.href = 'dashboard.html';
-    } else {
-        Swal.fire('Gagal!', 'Akun atau Password salah!', 'error');
-    }
-});
+        e.preventDefault();
+        const u = document.getElementById('loginUser').value, p = document.getElementById('loginPass').value;
+        const users = JSON.parse(localStorage.getItem('allUsers')) || [];
+        const found = users.find(x => x.username === u && x.password === p);
+        if (found) {
+            localStorage.setItem('currentUser', JSON.stringify(found));
+            if(typeof createSession === 'function') createSession();
+            window.location.href = 'dashboard.html';
+        } else { Swal.fire('Gagal!', 'Username/Password Salah!', 'error'); }
+    });
 </script>
 </body>
 </html>
