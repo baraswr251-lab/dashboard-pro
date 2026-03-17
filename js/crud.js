@@ -1,17 +1,19 @@
-// 1. Ambil info siapa yang lagi login sekarang
+// 1. Inisialisasi Kunci Unik Per Akun
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+// Kunci dinamis: jika login 'budi', data disimpan di 'products_budi'
 const userKey = currentUser ? `products_${currentUser.username}` : 'myProducts';
 
-// 2. Ambil data barang KHUSUS buat akun yang lagi login
+// 2. Ambil data barang sesuai akun yang login
 let products = JSON.parse(localStorage.getItem(userKey)) || [];
 
-// 3. Update fungsi simpan agar pake kunci yang spesifik tadi
+// 3. Fungsi Simpan (HANYA SATU, GAK BOLEH DOBEL)
 function saveAndRefresh() {
-    localStorage.setItem(userKey, JSON.stringify(products)); // Simpan ke lemari masing-masing
+    localStorage.setItem(userKey, JSON.stringify(products));
     renderTable();
     updateStats();
 }
 
+// 4. Fungsi Tampil Tabel
 function renderTable() {
     const tableBody = document.getElementById('productTable');
     if (!tableBody) return;
@@ -38,16 +40,22 @@ function renderTable() {
     });
 }
 
+// 5. Fungsi Update Statistik (Total Barang, Stok, & Nilai)
 function updateStats() {
     const totalP = products.length;
-    const totalS = products.reduce((s, i) => s + parseInt(i.stock), 0);
-    const totalV = products.reduce((s, i) => s + (parseInt(i.stock) * parseInt(i.price)), 0);
+    const totalS = products.reduce((s, i) => s + (parseInt(i.stock) || 0), 0);
+    const totalV = products.reduce((s, i) => s + ((parseInt(i.stock) || 0) * (parseInt(i.price) || 0)), 0);
 
-    document.getElementById('totalProducts').innerText = totalP;
-    document.getElementById('totalStock').innerText = totalS;
-    document.getElementById('totalValue').innerText = totalV.toLocaleString('id-ID');
+    const elP = document.getElementById('totalProducts');
+    const elS = document.getElementById('totalStock');
+    const elV = document.getElementById('totalValue');
+
+    if(elP) elP.innerText = totalP;
+    if(elS) elS.innerText = totalS;
+    if(elV) elV.innerText = totalV.toLocaleString('id-ID');
 }
 
+// 6. Fungsi Edit & Tambah
 function adjustStock(id, amt) {
     const idx = products.findIndex(p => p.id === id);
     if (idx !== -1) {
@@ -61,7 +69,7 @@ function editField(id, field, val) {
     const type = (field === 'name') ? 'text' : 'number';
     Swal.fire({ title: `Edit ${field}`, input: type, inputValue: val, showCancelButton: true })
     .then((res) => {
-        if (res.isConfirmed) {
+        if (res.isConfirmed && res.value !== "") {
             const idx = products.findIndex(p => p.id === id);
             products[idx][field] = (type === 'number') ? parseInt(res.value) : res.value;
             saveAndRefresh();
@@ -74,25 +82,28 @@ function deleteProduct(id) {
     saveAndRefresh();
 }
 
-function saveAndRefresh() {
-    localStorage.setItem('myProducts', JSON.stringify(products));
-    renderTable();
-    updateStats();
-}
-
-// Tambah Produk Baru
 function showAddForm() { document.getElementById('addModal').style.display = 'flex'; }
 function closeForm() { document.getElementById('addModal').style.display = 'none'; }
+
 function saveProduct() {
     const name = document.getElementById('pName').value;
     const stock = parseInt(document.getElementById('pStock').value);
     const price = parseInt(document.getElementById('pPrice').value);
-    if (!name || isNaN(stock) || isNaN(price)) return alert("Isi semua!");
+    
+    if (!name || isNaN(stock) || isNaN(price)) {
+        return Swal.fire('Eits!', 'Isi semua data barangnya dulu, Bos!', 'warning');
+    }
     
     products.push({ id: Date.now(), name, stock, price });
     saveAndRefresh();
     closeForm();
+    
+    // Reset Form
+    document.getElementById('pName').value = '';
+    document.getElementById('pStock').value = '';
+    document.getElementById('pPrice').value = '';
 }
 
+// Jalankan saat halaman dibuka
 renderTable();
 updateStats();
