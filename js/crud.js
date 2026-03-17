@@ -3,16 +3,18 @@ let products = JSON.parse(localStorage.getItem('myProducts')) || [];
 
 // Fungsi nampilin Form Tambah
 function showAddForm() {
-    document.getElementById('addModal').classList.remove('hidden');
-    document.getElementById('addModal').style.display = 'flex';
+    const modal = document.getElementById('addModal');
+    // Kita hapus class hidden dan paksa display jadi flex
+    modal.classList.remove('hidden');
+    modal.style.setProperty('display', 'flex', 'important');
 }
 
-// Fungsi tutup Form
 function closeForm() {
-    document.getElementById('addModal').classList.add('hidden');
-    document.getElementById('addModal').style.display = 'none';
+    const modal = document.getElementById('addModal');
+    // Kita sembunyiin lagi
+    modal.style.setProperty('display', 'none', 'important');
+    modal.classList.add('hidden');
 }
-
 // Fungsi Simpan Barang
 function saveProduct() {
     const name = document.getElementById('pName').value;
