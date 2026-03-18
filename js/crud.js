@@ -1,11 +1,11 @@
-// 1. Inisialisasi Kunci Unik Per Akun
+// 1. Inisialisasi Kunci User
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 const userKey = currentUser ? `products_${currentUser.username}` : 'myProducts';
 
-// 2. Ambil data barang
+// 2. Ambil data
 let products = JSON.parse(localStorage.getItem(userKey)) || [];
 
-// 3. Fungsi Render Utama (Satu fungsi untuk semua kondisi)
+// 3. FUNGSI RENDER (Jantungnya Aplikasi - Udah Include Tombol +/- & Search)
 function renderTable(dataToDisplay = products) {
     const tableBody = document.getElementById('productTable');
     if (!tableBody) return;
@@ -14,7 +14,6 @@ function renderTable(dataToDisplay = products) {
     dataToDisplay.forEach((item) => {
         const isLowStock = item.stock <= 5;
         const rowClass = isLowStock ? 'table-warning-custom' : '';
-        // Pake <br> biar rapi di HP kalau ada alert limit
         const stockAlert = isLowStock ? `<br><span class="badge-low-stock">Limit!</span>` : '';
 
         tableBody.innerHTML += `
@@ -25,7 +24,7 @@ function renderTable(dataToDisplay = products) {
                 <td>
                     <div class="d-flex align-items-center justify-content-center gap-2">
                         <button class="btn btn-sm btn-outline-secondary" onclick="adjustStock(${item.id}, -1)">-</button>
-                        <span class="fw-bold" style="min-width:25px" onclick="editField(${item.id}, 'stock', ${item.stock})">${item.stock}</span>
+                        <span class="fw-bold" style="min-width: 25px;" onclick="editField(${item.id}, 'stock', ${item.stock})">${item.stock}</span>
                         <button class="btn btn-sm btn-outline-primary" onclick="adjustStock(${item.id}, 1)">+</button>
                     </div>
                 </td>
@@ -41,44 +40,38 @@ function renderTable(dataToDisplay = products) {
     });
 }
 
-// 4. Fungsi Simpan & Refresh (Otomatis update semua tampilan)
+// 4. LOGIC SEARCH (Sekarang manggil renderTable biar tombol gak ilang)
+function searchData() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase();
+    const results = products.filter(item => item.name.toLowerCase().includes(keyword));
+    renderTable(results); // Manggil render utama biar tombol tetep ada
+}
+
+// 5. UPDATE & SIMPAN
 function saveAndRefresh() {
     localStorage.setItem(userKey, JSON.stringify(products));
     
-    // Cek apakah lagi ada teks di search bar
+    // Cek lagi search atau nggak
     const keyword = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : "";
-    
     if (keyword) {
-        searchData(); // Jika lagi nyari, tetep di tampilan cari
+        searchData();
     } else {
-        renderTable(); // Jika nggak, tampilkan semua
+        renderTable();
     }
     updateStats();
 }
 
-// 5. Fungsi Update Statistik
 function updateStats() {
     const totalP = products.length;
     const totalS = products.reduce((s, i) => s + (parseInt(i.stock) || 0), 0);
     const totalV = products.reduce((s, i) => s + ((parseInt(i.stock) || 0) * (parseInt(i.price) || 0)), 0);
 
-    const elP = document.getElementById('totalProducts');
-    const elS = document.getElementById('totalStock');
-    const elV = document.getElementById('totalValue');
-
-    if(elP) elP.innerText = totalP;
-    if(elS) elS.innerText = totalS;
-    if(elV) elV.innerText = totalV.toLocaleString('id-ID');
+    if(document.getElementById('totalProducts')) document.getElementById('totalProducts').innerText = totalP;
+    if(document.getElementById('totalStock')) document.getElementById('totalStock').innerText = totalS;
+    if(document.getElementById('totalValue')) document.getElementById('totalValue').innerText = totalV.toLocaleString('id-ID');
 }
 
-// 6. Logika Search (Panggil renderTable dengan data yang difilter)
-function searchData() {
-    const keyword = document.getElementById('searchInput').value.toLowerCase();
-    const results = products.filter(item => item.name.toLowerCase().includes(keyword));
-    renderTable(results); // Panggil fungsi render utama pake hasil cari
-}
-
-// 7. Fungsi Edit & Adjust
+// 6. ACTION (STOK & EDIT)
 function adjustStock(id, amt) {
     const idx = products.findIndex(p => p.id === id);
     if (idx !== -1) {
@@ -91,13 +84,11 @@ function adjustStock(id, amt) {
 function editField(id, field, val) {
     const type = (field === 'name') ? 'text' : 'number';
     Swal.fire({ 
-        title: `Edit ${field === 'name' ? 'Nama' : field === 'stock' ? 'Stok' : 'Harga'}`, 
+        title: `Edit ${field}`, 
         input: type, 
         inputValue: val, 
-        showCancelButton: true,
-        confirmButtonColor: '#0d6efd'
-    })
-    .then((res) => {
+        showCancelButton: true 
+    }).then((res) => {
         if (res.isConfirmed && res.value !== "") {
             const idx = products.findIndex(p => p.id === id);
             products[idx][field] = (type === 'number') ? parseInt(res.value) : res.value;
@@ -106,22 +97,22 @@ function editField(id, field, val) {
     });
 }
 
-// 8. CRUD Dasar
 function deleteProduct(id) {
     Swal.fire({
-        title: 'Hapus Barang?',
+        title: 'Hapus?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Ya, Hapus!',
+        confirmButtonText: 'Ya',
         confirmButtonColor: '#dc3545'
-    }).then((result) => {
-        if (result.isConfirmed) {
+    }).then((r) => {
+        if (r.isConfirmed) {
             products = products.filter(p => p.id !== id);
             saveAndRefresh();
         }
     });
 }
 
+// 7. FORM MODAL
 function showAddForm() { document.getElementById('addModal').style.display = 'flex'; }
 function closeForm() { document.getElementById('addModal').style.display = 'none'; }
 
@@ -129,21 +120,16 @@ function saveProduct() {
     const name = document.getElementById('pName').value;
     const stock = parseInt(document.getElementById('pStock').value);
     const price = parseInt(document.getElementById('pPrice').value);
-    
-    if (!name || isNaN(stock) || isNaN(price)) {
-        return Swal.fire('Eits!', 'Isi semua data barangnya dulu, Bos!', 'warning');
-    }
+    if (!name || isNaN(stock) || isNaN(price)) return Swal.fire('Eits!', 'Isi semua!', 'warning');
     
     products.push({ id: Date.now(), name, stock, price });
     saveAndRefresh();
     closeForm();
-    
-    // Reset Form
     document.getElementById('pName').value = '';
     document.getElementById('pStock').value = '';
     document.getElementById('pPrice').value = '';
 }
 
-// Inisialisasi awal
+// JALANKAN AWAL
 renderTable();
 updateStats();
