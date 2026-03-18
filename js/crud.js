@@ -104,6 +104,31 @@ function saveProduct() {
     document.getElementById('pPrice').value = '';
 }
 
+function searchData() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase();
+    
+    // Pastikan nama variabel data barang lo adalah 'products'
+    const results = products.filter(item => 
+        item.name.toLowerCase().includes(keyword)
+    );
+
+    const tableBody = document.getElementById('productTable');
+    tableBody.innerHTML = '';
+
+    results.forEach(item => {
+        const rowClass = item.stock <= 5 ? 'table-warning-custom' : '';
+        tableBody.innerHTML += `
+            <tr class="${rowClass}">
+                <td>${item.name}</td>
+                <td><span class="fw-bold">${item.stock}</span></td>
+                <td>Rp ${item.price.toLocaleString('id-ID')}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${item.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+    });
+}
+
 // Jalankan saat halaman dibuka
 renderTable();
 updateStats();
