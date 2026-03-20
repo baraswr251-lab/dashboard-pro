@@ -3,82 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - DigiPro</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>DigiPro | Login & Registrasi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/dashboard.css"> <!-- pakai CSS lo sendiri kalau mau -->
     <style>
-        body { background: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
-        .login-card { width: 95%; max-width: 400px; padding: 2.5rem 2rem; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: #fff; text-align: center; }
-        .icon-box { width: 60px; height: 60px; background: #0d6efd; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem; }
-        .form-control { border-radius: 0.8rem; padding: 0.75rem; border: 1px solid #dee2e6; }
-        .btn-custom { border-radius: 0.8rem; padding: 0.75rem; font-weight: 600; width: 100%; margin-bottom: 12px; transition: 0.3s; }
-        .password-wrapper { position: relative; }
-        .password-wrapper i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6c757d; z-index: 10; }
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
-        .modal-box { background: white; padding: 2.5rem 2rem; border-radius: 1.5rem; width: 100%; max-width: 400px; }
+        /* CSS dari gue (bisa ditimpa atau dihapus kalau pakai dashboard.css) */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab {
+            flex:1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+        }
+        .tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        .form { display: none; }
+        .form.active { display: block; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background: #5a67d8; transform:translateY(-2px); }
+        .error { color: #e53e3e; font-size:12px; margin:5px 0; }
+        .success { font-size:14px; text-align:center; margin-top:15px; }
+        .info { text-align:center; margin-top:20px; font-size:12px; color:#888; }
+        @media (max-width:480px){ .card{padding:25px;} }
     </style>
 </head>
 <body>
-
-<div class="login-card">
-    <div class="icon-box"><i class="fas fa-user-shield"></i></div>
-    <h3 class="fw-bold mb-1">DigiPro Login</h3>
-    <p class="text-muted mb-4 small">Kelola Inventaris Lebih Mudah</p>
-    <form id="loginForm">
-        <div class="mb-3 text-start"><input type="text" id="loginUser" class="form-control" placeholder="Username" required autocomplete="off"></div>
-        <div class="mb-4 text-start password-wrapper">
-            <input type="password" id="loginPass" class="form-control" placeholder="Password" required>
-            <i class="fas fa-eye-slash" id="eyeLogin" onclick="togglePassword('loginPass', 'eyeLogin')"></i>
-        </div>
-        <button type="submit" class="btn btn-primary btn-custom shadow-sm">Masuk Sekarang</button>
-    </form>
-    <hr><button class="btn btn-outline-primary btn-custom" onclick="openRegister()">Daftar Akun Baru</button>
-</div>
-
-<div class="modal-overlay" id="registerModal">
-    <div class="modal-box">
-        <h4 class="fw-bold mb-3 text-center">Registrasi User</h4>
-        <form id="regForm">
-            <div class="mb-3"><input type="text" id="regUser" class="form-control" placeholder="Username Baru" required autocomplete="off"></div>
-            <div class="mb-4 password-wrapper">
-                <input type="password" id="regPass" class="form-control" placeholder="Password Baru" required>
-                <i class="fas fa-eye-slash" id="eyeReg" onclick="togglePassword('regPass', 'eyeReg')"></i>
-            </div>
-            <button type="submit" class="btn btn-success btn-custom">Simpan Akun</button>
-            <button type="button" class="btn btn-light btn-custom" onclick="closeRegister()">Batal</button>
-        </form>
+<div class="card">
+    <h2 style="text-align:center; margin-bottom:20px;">DigiPro</h2>
+    <div class="tabs">
+        <div class="tab active" data-tab="login">Masuk</div>
+        <div class="tab" data-tab="register">Daftar</div>
     </div>
+
+    <div id="loginForm" class="form active">
+        <input type="email" id="loginEmail" placeholder="Email">
+        <div class="error" id="loginEmailError"></div>
+        <input type="password" id="loginPassword" placeholder="Password">
+        <div class="error" id="loginPasswordError"></div>
+        <button id="loginBtn">Masuk Sekarang</button>
+        <div id="loginMessage" class="success"></div>
+    </div>
+
+    <div id="registerForm" class="form">
+        <input type="email" id="regEmail" placeholder="Email">
+        <div class="error" id="regEmailError"></div>
+        <input type="password" id="regPassword" placeholder="Password (min. 6)">
+        <div class="error" id="regPasswordError"></div>
+        <input type="password" id="regConfirm" placeholder="Konfirmasi Password">
+        <div class="error" id="regConfirmError"></div>
+        <button id="registerBtn">Simpan Akun</button>
+        <div id="registerMessage" class="success"></div>
+    </div>
+    <div class="info">✨ Data disimpan di browser (demo)</div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/auth.js"></script>
 <script>
-    function openRegister() { document.getElementById('registerModal').style.display = 'flex'; }
-    function closeRegister() { document.getElementById('registerModal').style.display = 'none'; }
-    function togglePassword(pId, eId) {
-        const p = document.getElementById(pId), e = document.getElementById(eId);
-        if (p.type === "password") { p.type = "text"; e.classList.replace("fa-eye-slash", "fa-eye"); }
-        else { p.type = "password"; e.classList.replace("fa-eye", "fa-eye-slash"); }
-    }
-    document.getElementById('regForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const u = document.getElementById('regUser').value, p = document.getElementById('regPass').value;
-        let users = JSON.parse(localStorage.getItem('allUsers')) || [];
-        if (users.find(x => x.username === u)) return Swal.fire('Gagal', 'Username sudah ada!', 'error');
-        users.push({ username: u, password: p });
-        localStorage.setItem('allUsers', JSON.stringify(users));
-        Swal.fire('Berhasil!', 'Silakan Login', 'success'); closeRegister();
+    const tabs = document.querySelectorAll('.tab');
+    const loginFormDiv = document.getElementById('loginForm');
+    const registerFormDiv = document.getElementById('registerForm');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            if (tab.dataset.tab === 'login') {
+                loginFormDiv.classList.add('active');
+                registerFormDiv.classList.remove('active');
+            } else {
+                loginFormDiv.classList.remove('active');
+                registerFormDiv.classList.add('active');
+            }
+        });
     });
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const u = document.getElementById('loginUser').value, p = document.getElementById('loginPass').value;
-        const users = JSON.parse(localStorage.getItem('allUsers')) || [];
-        const found = users.find(x => x.username === u && x.password === p);
-        if (found) {
-            localStorage.setItem('currentUser', JSON.stringify(found));
-            if(typeof createSession === 'function') createSession();
-            window.location.href = 'dashboard.html';
-        } else { Swal.fire('Gagal!', 'Username/Password Salah!', 'error'); }
+
+    function getUsers() { return JSON.parse(localStorage.getItem('users')) || []; }
+    function saveUsers(users) { localStorage.setItem('users', JSON.stringify(users)); }
+
+    // REGISTER
+    document.getElementById('registerBtn').addEventListener('click', () => {
+        let valid = true;
+        const email = document.getElementById('regEmail').value.trim();
+        const pass = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('regConfirm').value;
+
+        document.getElementById('regEmailError').innerText = '';
+        document.getElementById('regPasswordError').innerText = '';
+        document.getElementById('regConfirmError').innerText = '';
+        document.getElementById('registerMessage').innerText = '';
+
+        if (!email.includes('@')) {
+            document.getElementById('regEmailError').innerText = 'Email harus mengandung @';
+            valid = false;
+        }
+        if (pass.length < 6) {
+            document.getElementById('regPasswordError').innerText = 'Password minimal 6 karakter';
+            valid = false;
+        }
+        if (pass !== confirm) {
+            document.getElementById('regConfirmError').innerText = 'Password tidak cocok';
+            valid = false;
+        }
+        if (!valid) return;
+
+        const users = getUsers();
+        if (users.find(u => u.email === email)) {
+            document.getElementById('registerMessage').innerText = 'Email sudah terdaftar!';
+            document.getElementById('registerMessage').style.color = '#e53e3e';
+            return;
+        }
+        users.push({ email, password: pass });
+        saveUsers(users);
+        document.getElementById('registerMessage').innerText = '✅ Registrasi berhasil! Silakan login.';
+        document.getElementById('registerMessage').style.color = '#38a169';
+        document.getElementById('regEmail').value = '';
+        document.getElementById('regPassword').value = '';
+        document.getElementById('regConfirm').value = '';
+        setTimeout(() => {
+            document.querySelector('.tab[data-tab="login"]').click();
+        }, 1000);
+    });
+
+    // LOGIN
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPassword').value;
+        document.getElementById('loginEmailError').innerText = '';
+        document.getElementById('loginPasswordError').innerText = '';
+        document.getElementById('loginMessage').innerText = '';
+
+        if (!email.includes('@')) {
+            document.getElementById('loginEmailError').innerText = 'Email harus mengandung @';
+            return;
+        }
+        if (pass.length < 6) {
+            document.getElementById('loginPasswordError').innerText = 'Password minimal 6 karakter';
+            return;
+        }
+        const users = getUsers();
+        const user = users.find(u => u.email === email && u.password === pass);
+        if (user) {
+            localStorage.setItem('loggedInUser', email);
+            document.getElementById('loginMessage').innerText = '✅ Login berhasil! Mengarahkan ke dashboard...';
+            document.getElementById('loginMessage').style.color = '#38a169';
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        } else {
+            document.getElementById('loginMessage').innerText = 'Email atau password salah.';
+            document.getElementById('loginMessage').style.color = '#e53e3e';
+        }
     });
 </script>
 </body>
