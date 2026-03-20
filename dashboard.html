@@ -17,6 +17,7 @@
             font-family: 'Inter', sans-serif;
             background: #f3f4f6;
             padding: 20px;
+            transition: background 0.3s, color 0.3s;
         }
         .container {
             max-width: 1200px;
@@ -203,70 +204,62 @@
             gap: 10px;
             margin-top: 20px;
         }
+        /* Dark Mode */
+        body.dark {
+            background: #1f2937;
+        }
+        body.dark .header,
+        body.dark .stat-card,
+        body.dark .chart-container,
+        body.dark table,
+        body.dark .modal-content {
+            background: #2d3748;
+            color: #f3f4f6;
+        }
+        body.dark .tab {
+            color: #9ca3af;
+        }
+        body.dark .tab.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+        }
+        body.dark th {
+            background: #374151;
+        }
+        body.dark td {
+            border-bottom-color: #4b5563;
+        }
+        /* Notifikasi */
+        .low-stock-warning {
+            background: #fff3cd;
+            border-left: 4px solid #f59e0b;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        body.dark .low-stock-warning {
+            background: #2d2a1f;
+            border-left-color: #f59e0b;
+            color: #f3f4f6;
+        }
         @media (max-width: 640px) {
             .header { flex-direction: column; gap: 10px; align-items: flex-start; }
             .stats-grid { grid-template-columns: 1fr; }
             table { font-size: 14px; }
             th, td { padding: 8px; }
         }
-        /* Dark Mode */
-body.dark {
-    background: #1f2937;
-}
-body.dark .header,
-body.dark .stat-card,
-body.dark .chart-container,
-body.dark table,
-body.dark .modal-content {
-    background: #2d3748;
-    color: #f3f4f6;
-}
-body.dark .tab {
-    color: #9ca3af;
-}
-body.dark .tab.active {
-    color: #60a5fa;
-    border-bottom-color: #60a5fa;
-}
-body.dark th {
-    background: #374151;
-}
-body.dark td {
-    border-bottom-color: #4b5563;
-}
-/* Notifikasi */
-.notification-badge {
-    background: #ef4444;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-    margin-left: 8px;
-}
-.low-stock-warning {
-    background: #fff3cd;
-    border-left: 4px solid #f59e0b;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    font-size: 14px;
-}
-body.dark .low-stock-warning {
-    background: #2d2a1f;
-    border-left-color: #f59e0b;
-}
-        
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <button id="darkModeToggle" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">
-    <i class="fas fa-moon"></i>
-</button>
         <h1><i class="fas fa-boxes"></i> DigiPro Inventory</h1>
         <div class="user-info">
             <span id="displayEmail"></span>
+            <button id="darkModeToggle" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">
+                <i class="fas fa-moon"></i>
+            </button>
             <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
         </div>
     </div>
@@ -279,14 +272,12 @@ body.dark .low-stock-warning {
     <!-- TAB DASHBOARD -->
     <div id="dashboardTab" class="tab-content active">
         <div id="lowStockAlert" class="low-stock-warning" style="display: none;"></div>
-        <div class="stats-grid" id="statsContainer">
-            <!-- akan diisi js -->
-        </div>
+        <div class="stats-grid" id="statsContainer"></div>
         <div class="chart-container">
             <canvas id="salesChart"></canvas>
         </div>
         <div class="chart-container">
-            <h3 style="margin-bottom: 10px;">5 Produk Terlaris (dummy)</h3>
+            <h3 style="margin-bottom: 10px;">5 Produk dengan Stok Terbanyak</h3>
             <canvas id="topProductsChart"></canvas>
         </div>
     </div>
@@ -328,78 +319,12 @@ body.dark .low-stock-warning {
     let products = [];
     let editIndex = -1;
 
+    // Fungsi penyimpanan
+    function saveData() {
+        localStorage.setItem('inventory_products', JSON.stringify(products));
+    }
+
     // Load data dari localStorage
-    // Dark Mode
-const darkModeToggle = document.getElementById('darkModeToggle');
-darkModeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
-});
-if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add('dark');
-}
-
-// Ekspor CSV
-document.getElementById('exportCSVBtn').addEventListener('click', () => {
-    let csvRows = [["Nama Produk","Harga","Stok"]];
-    products.forEach(p => {
-        csvRows.push([p.name, p.price, p.stock]);
-    });
-    const csvContent = csvRows.map(row => row.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "inventory_data.csv";
-    link.click();
-    URL.revokeObjectURL(link.href);
-});
-
-// Notifikasi Stok Menipis
-function checkLowStock() {
-    const lowStockItems = products.filter(p => p.stock < 5);
-    const alertDiv = document.getElementById('lowStockAlert');
-    if (lowStockItems.length > 0) {
-        alertDiv.style.display = 'block';
-        alertDiv.innerHTML = `<strong>⚠️ Peringatan Stok Menipis:</strong> ${lowStockItems.map(p => `${p.name} (sisa ${p.stock})`).join(', ')}`;
-    } else {
-        alertDiv.style.display = 'none';
-    }
-}
-
-// Panggil checkLowStock() setelah setiap perubahan data
-// Tambahkan di dalam fungsi addProduct, updateProduct, deleteProduct
-function addProduct(name, price, stock) {
-    products.push({ name, price: Number(price), stock: Number(stock) });
-    saveData();
-    renderProductTable();
-    updateDashboardStats();
-    renderCharts();
-    checkLowStock(); // tambahkan ini
-}
-function updateProduct(index, name, price, stock) {
-    products[index] = { name, price: Number(price), stock: Number(stock) };
-    saveData();
-    renderProductTable();
-    updateDashboardStats();
-    renderCharts();
-    checkLowStock(); // tambahkan ini
-}
-function deleteProduct(index) {
-    if (confirm('Hapus produk ini?')) {
-        products.splice(index, 1);
-        saveData();
-        renderProductTable();
-        updateDashboardStats();
-        renderCharts();
-        checkLowStock(); // tambahkan ini
-    }
-}
-
-// Panggil checkLowStock() di akhir loadData()
-function loadData() {
-    // ... kode load data yang sudah ada ...
-    checkLowStock(); // tambahkan ini setelah render
-}
     function loadData() {
         const stored = localStorage.getItem('inventory_products');
         if (stored) {
@@ -418,13 +343,10 @@ function loadData() {
         updateDashboardStats();
         renderProductTable();
         renderCharts();
+        checkLowStock();
     }
 
-    function saveData() {
-        localStorage.setItem('inventory_products', JSON.stringify(products));
-    }
-
-    // Update statistik di dashboard
+    // Update statistik
     function updateDashboardStats() {
         const totalProducts = products.length;
         const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
@@ -470,6 +392,7 @@ function loadData() {
         renderProductTable();
         updateDashboardStats();
         renderCharts();
+        checkLowStock();
     }
 
     function updateProduct(index, name, price, stock) {
@@ -478,6 +401,7 @@ function loadData() {
         renderProductTable();
         updateDashboardStats();
         renderCharts();
+        checkLowStock();
     }
 
     function deleteProduct(index) {
@@ -487,6 +411,19 @@ function loadData() {
             renderProductTable();
             updateDashboardStats();
             renderCharts();
+            checkLowStock();
+        }
+    }
+
+    // Notifikasi stok menipis
+    function checkLowStock() {
+        const lowStockItems = products.filter(p => p.stock < 5);
+        const alertDiv = document.getElementById('lowStockAlert');
+        if (lowStockItems.length > 0) {
+            alertDiv.style.display = 'block';
+            alertDiv.innerHTML = `<strong>⚠️ Peringatan Stok Menipis:</strong> ${lowStockItems.map(p => `${p.name} (sisa ${p.stock})`).join(', ')}`;
+        } else {
+            alertDiv.style.display = 'none';
         }
     }
 
@@ -535,12 +472,11 @@ function loadData() {
     };
     modalCancel.onclick = () => modal.style.display = 'none';
 
-    // Grafik sederhana (Chart.js)
+    // Grafik
     let salesChart, topProductsChart;
     function renderCharts() {
         const labels = products.map(p => p.name);
         const stockData = products.map(p => p.stock);
-        // Hanya ambil 5 produk teratas berdasarkan stok (sebagai contoh)
         const sorted = [...products].sort((a,b) => b.stock - a.stock).slice(0,5);
         const topLabels = sorted.map(p => p.name);
         const topStocks = sorted.map(p => p.stock);
@@ -563,6 +499,31 @@ function loadData() {
         });
     }
 
+    // Dark Mode Toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+    });
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark');
+    }
+
+    // Ekspor CSV
+    document.getElementById('exportCSVBtn').addEventListener('click', () => {
+        let csvRows = [["Nama Produk","Harga","Stok"]];
+        products.forEach(p => {
+            csvRows.push([p.name, p.price, p.stock]);
+        });
+        const csvContent = csvRows.map(row => row.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "inventory_data.csv";
+        link.click();
+        URL.revokeObjectURL(link.href);
+    });
+
     // Event listeners
     document.getElementById('addProductBtn')?.addEventListener('click', openAddModal);
     document.getElementById('searchProduct')?.addEventListener('input', () => renderProductTable());
@@ -578,11 +539,11 @@ function loadData() {
             if (tab.dataset.tab === 'dashboard') {
                 dashboardTab.classList.add('active');
                 productsTab.classList.remove('active');
-                renderCharts(); // refresh chart saat tab diaktifkan
+                renderCharts();
             } else {
                 dashboardTab.classList.remove('active');
                 productsTab.classList.add('active');
-                renderProductTable(); // refresh tabel saat tab diaktifkan
+                renderProductTable();
             }
         });
     });
@@ -602,7 +563,7 @@ function loadData() {
         document.getElementById('displayEmail').innerHTML = `<i class="fas fa-user-circle"></i> ${loggedUser}`;
     }
 
-    // Load data awal
+    // Mulai
     loadData();
 </script>
 </body>
