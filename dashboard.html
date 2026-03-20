@@ -3,86 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - DigiPro</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Dashboard-Pro | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/dashboard.css"> <!-- pake CSS lo sendiri kalau mau -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f7fafc;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 { font-size:28px; margin-bottom:10px; }
+        .user-info { background:#edf2f7; padding:15px; border-radius:12px; margin:20px 0; }
+        .stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:20px; margin:30px 0; }
+        .stat-card { background:#667eea; color:white; padding:20px; border-radius:16px; text-align:center; }
+        .stat-number { font-size:32px; font-weight:bold; }
+        button { background:#e53e3e; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; }
+        button:hover { background:#c53030; }
+        .footer { margin-top:30px; text-align:center; color:#718096; font-size:14px; }
+    </style>
 </head>
 <body>
-<div class="d-flex" id="wrapper">
-    <div class="bg-dark text-white" id="sidebar-wrapper">
-        <div class="sidebar-heading text-center py-4 fs-4 fw-bold border-bottom">DIGIPRO</div>
-        <div class="list-group list-group-flush my-3">
-            <a href="#" class="list-group-item list-group-item-action bg-transparent text-white active"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            <a href="javascript:void(0)" id="btnLogout" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold"><i class="fas fa-power-off me-2"></i>Logout</a>
-        </div>
+<div class="container">
+    <h1>📊 Dashboard</h1>
+    <div class="user-info" id="userInfo"></div>
+    <div class="stats">
+        <div class="stat-card"><div class="stat-number">12</div><div>Total Produk</div></div>
+        <div class="stat-card"><div class="stat-number">5</div><div>Pesanan Masuk</div></div>
+        <div class="stat-card"><div class="stat-number">Rp 2.5jt</div><div>Omset Bulan Ini</div></div>
     </div>
-    <div id="page-content-wrapper">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 px-4 shadow-sm">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle" style="cursor:pointer;"></i>
-                <h2 class="fs-4 m-0 fw-bold">Dashboard Utama</h2>
-            </div>
-        </nav>
-        <div class="container-fluid px-4 mt-4">
-            <div class="row g-3">
-                <div class="col-md-4"><div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded-4"><div><h3 id="totalProducts">0</h3><p class="text-muted mb-0">Produk</p></div><i class="fas fa-box fs-1 text-primary"></i></div></div>
-                <div class="col-md-4"><div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded-4"><div><h3 id="totalStock">0</h3><p class="text-muted mb-0">Stok</p></div><i class="fas fa-warehouse fs-1 text-success"></i></div></div>
-                <div class="col-md-4"><div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded-4"><div><h3 id="totalValue">0</h3><p class="text-muted mb-0">Aset</p></div><i class="fas fa-money-bill-wave fs-1 text-warning"></i></div></div>
-            </div>
-            <div class="row my-4">
-    <div class="col">
-        <div class="bg-white p-4 rounded-4 shadow-sm">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-                <h5 class="fw-bold mb-3 mb-md-0">Inventaris</h5>
-                
-                <div class="d-flex gap-2">
-                    <div class="input-group input-group-sm" style="max-width: 180px;">
-                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-                        <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari barang..." onkeyup="searchData()">
-                    </div>
-                    <button class="btn btn-primary btn-sm px-3 shadow-sm" onclick="showAddForm()">+ Tambah</button>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-hover text-center">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Nama</th>
-                            <th>Stok</th>
-                            <th>Harga</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productTable">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+    <div class="footer">✨ Demo Dashboard - Data statis untuk prototype</div>
 </div>
-
-
-<div id="addModal" style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; display:none; align-items:center; justify-content:center;">
-    <div class="bg-white p-4 rounded-4 shadow-lg" style="width: 90%; max-width: 400px;">
-        <h4 class="fw-bold mb-3">Tambah Barang</h4>
-        <input type="text" id="pName" class="form-control mb-3" placeholder="Nama Barang">
-        <div class="row mb-3"><div class="col-6"><input type="number" id="pStock" class="form-control" placeholder="Stok"></div><div class="col-6"><input type="number" id="pPrice" class="form-control" placeholder="Harga"></div></div>
-        <button class="btn btn-success w-100 mb-2" onclick="saveProduct()">Simpan</button>
-        <button class="btn btn-light w-100" onclick="closeForm()">Batal</button>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/auth.js"></script>
-<script src="js/crud.js"></script>
 <script>
-    const menuToggle = document.getElementById('menu-toggle'), wrapper = document.getElementById('wrapper');
-    if(menuToggle) { menuToggle.onclick = function() { wrapper.classList.toggle('toggled'); }; }
-    document.getElementById('btnLogout').onclick = function() {
-        localStorage.removeItem('userSession'); localStorage.removeItem('currentUser'); window.location.href = 'index.html';
-    };
+    const loggedUser = localStorage.getItem('loggedInUser');
+    if (!loggedUser) {
+        alert('Silakan login terlebih dahulu.');
+        window.location.href = 'index.html';
+    } else {
+        document.getElementById('userInfo').innerHTML = `<i class="fas fa-user-circle"></i> Selamat datang, <strong>${loggedUser}</strong>!`;
+    }
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('loggedInUser');
+        window.location.href = 'index.html';
+    });
 </script>
 </body>
 </html>
